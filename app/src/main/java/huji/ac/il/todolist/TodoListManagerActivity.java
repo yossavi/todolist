@@ -18,11 +18,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class TodoListManagerActivity extends ActionBarActivity {
+public class TodoListManagerActivity extends ActionBarActivity implements DbListeners{
 
-    private ArrayList<Row> list;
+    private Db db;
     private ListView listview;
     private Context context;
+    private ArrayList<Row> list;
     private ToDoListArrayAdapter adapter;
 
     @Override
@@ -31,10 +32,46 @@ public class TodoListManagerActivity extends ActionBarActivity {
         setContentView(R.layout.activity_todo_list_manager);
 
         listview = (ListView) findViewById(R.id.lstTodoItems);
-        list = new ArrayList<Row>();
         context = TodoListManagerActivity.this;
-        adapter = new ToDoListArrayAdapter(this, android.R.layout.simple_list_item_1, list);
+        db = new Db(context, this);
+        db.getWritableDatabase();
+    }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_todo_list_manager, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.menuItemAdd) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void addToList(MenuItem item) {
+        Intent intent = new Intent(this, AddNewTodoItemActivity.class);
+        startActivityForResult(intent, 0);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data != null && data.hasExtra("edtNewItem") && data.hasExtra("datePicker")) {
+            Row newRow = new Row(data.getStringExtra("edtNewItem"), Long.parseLong(data.getStringExtra("datePicker")), 0);
+            db.addRow(newRow);
+            onDbOpened();
+        }
+    }
+
+    @Override
+    public void onDbOpened() {
+        list = db.getAllRows();
+        adapter = new ToDoListArrayAdapter(this, android.R.layout.simple_list_item_1, list);
         listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, final long id) {
@@ -50,6 +87,7 @@ public class TodoListManagerActivity extends ActionBarActivity {
                     public void onClick(View v) {
                         dialog.hide();
                         dialog.dismiss();
+                        db.removeRow(list.get((int) id).id);
                         list.remove((int)id);
                         listview.setAdapter(adapter);
                     }
@@ -81,34 +119,6 @@ public class TodoListManagerActivity extends ActionBarActivity {
                 return true;
             }
         });
-
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_todo_list_manager, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.menuItemAdd) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void addToList(MenuItem item) {
-        Intent intent = new Intent(this, AddNewTodoItemActivity.class);
-        startActivityForResult(intent, 0);
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        list.add(new Row(data.getStringExtra("edtNewItem"), Long.parseLong(data.getStringExtra("datePicker"))));
         listview.setAdapter(adapter);
     }
 }

@@ -6,9 +6,11 @@ package huji.ac.il.todolist;
 public class Row {
     public String toDo;
     public long date;
+    public int id;
 
-    public Row(String toDo, long date) {
+    public Row(String toDo, long date, int id) {
         this.date = date;
         this.toDo = toDo;
+        this.id = id;
     }
 }
