@@ -9,14 +9,15 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Created by yossi on 3/15/2015.
  */
-public class ToDoListArrayAdapter extends ArrayAdapter<String> {
+public class ToDoListArrayAdapter extends ArrayAdapter<Row> {
 
     public ToDoListArrayAdapter(Context context, int textViewResourceId,
-                                List<String> objects) {
+                                List<Row> objects) {
         super(context, textViewResourceId, objects);
     }
 
@@ -24,16 +25,25 @@ public class ToDoListArrayAdapter extends ArrayAdapter<String> {
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater =
                 LayoutInflater.from(getContext());
-        View view = inflater.inflate(R.layout.row, parent, false);
-        TextView row = (TextView)view.findViewById(R.id.rowText);
-        row.setText(getItem(position));
-        if(position%2==0) {
-            row.setTextColor(Color.RED);
-        } else {
-            row.setTextColor(Color.BLUE);
+
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.row, null);
         }
 
-        return view;
+        TextView txtTodoTitle = (TextView)convertView.findViewById(R.id.txtTodoTitle);
+        TextView txtTodoDueDate = (TextView)convertView.findViewById(R.id.txtTodoDueDate);
+        txtTodoTitle.setText(getItem(position).toDo);
+        txtTodoDueDate.setText(Clock.getHumanTime(getItem(position).date));
+
+        if(Clock.getCurrentTimeMili() > getItem(position).date) {
+            txtTodoTitle.setTextColor(Color.RED);
+            txtTodoDueDate.setTextColor(Color.RED);
+        } else {
+            txtTodoTitle.setTextColor(Color.BLACK);
+            txtTodoDueDate.setTextColor(Color.BLACK);
+        }
+
+        return convertView;
     }
 
 }

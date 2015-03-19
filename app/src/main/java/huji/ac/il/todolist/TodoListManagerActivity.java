@@ -2,6 +2,8 @@ package huji.ac.il.todolist;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,14 +12,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class TodoListManagerActivity extends ActionBarActivity {
 
-    private ArrayList<String> list;
+    private ArrayList<Row> list;
     private ListView listview;
     private Context context;
     private ToDoListArrayAdapter adapter;
@@ -28,7 +31,7 @@ public class TodoListManagerActivity extends ActionBarActivity {
         setContentView(R.layout.activity_todo_list_manager);
 
         listview = (ListView) findViewById(R.id.lstTodoItems);
-        list = new ArrayList<String>();
+        list = new ArrayList<Row>();
         context = TodoListManagerActivity.this;
         adapter = new ToDoListArrayAdapter(this, android.R.layout.simple_list_item_1, list);
 
@@ -39,7 +42,7 @@ public class TodoListManagerActivity extends ActionBarActivity {
                 LayoutInflater inflater = (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View bodyView = inflater.inflate(R.layout.delete_dialog, null);
 
-                dialog.setTitle(list.get((int) id));
+                dialog.setTitle(list.get((int) id).toDo);
 
                 Button deleteButton = (Button) bodyView.findViewById(R.id.menuItemDelete);
                 deleteButton.setOnClickListener(new Button.OnClickListener() {
@@ -51,6 +54,27 @@ public class TodoListManagerActivity extends ActionBarActivity {
                         listview.setAdapter(adapter);
                     }
                 });
+
+                Button menuItemCall = (Button) bodyView.findViewById(R.id.menuItemCall);
+                String mydata = list.get((int) id).toDo;
+                Pattern pattern = Pattern.compile("call (.*)", Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(mydata);
+
+                if (matcher.find()) {
+                    final String res = matcher.group(1);
+                    menuItemCall.setText("Call to: " + res);
+                    menuItemCall.setOnClickListener(new Button.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent dial = new Intent(Intent.ACTION_DIAL,
+                                    Uri.parse("tel:"+res));
+                            startActivity(dial);
+                        }
+                    });
+                } else {
+                    menuItemCall.setVisibility(View.GONE);
+                }
+
 
                 dialog.setContentView(bodyView);
                 dialog.show();
@@ -79,8 +103,12 @@ public class TodoListManagerActivity extends ActionBarActivity {
     }
 
     public void addToList(MenuItem item) {
-        final EditText edtNewItem = (EditText) findViewById(R.id.edtNewItem);
-        list.add(edtNewItem.getText().toString());
+        Intent intent = new Intent(this, AddNewTodoItemActivity.class);
+        startActivityForResult(intent, 0);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        list.add(new Row(data.getStringExtra("edtNewItem"), Long.parseLong(data.getStringExtra("datePicker"))));
         listview.setAdapter(adapter);
     }
 }
