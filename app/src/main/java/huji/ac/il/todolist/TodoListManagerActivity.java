@@ -108,7 +108,9 @@ public class TodoListManagerActivity extends ActionBarActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        list.add(new Row(data.getStringExtra("edtNewItem"), Long.parseLong(data.getStringExtra("datePicker"))));
-        listview.setAdapter(adapter);
+        if (data != null && data.hasExtra("edtNewItem") && data.hasExtra("datePicker")) {
+            list.add(new Row(data.getStringExtra("edtNewItem"), Long.parseLong(data.getStringExtra("datePicker"))));
+            listview.setAdapter(adapter);
+        }
     }
 }
