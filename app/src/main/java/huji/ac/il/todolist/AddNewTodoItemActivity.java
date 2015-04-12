@@ -28,9 +28,20 @@ public class AddNewTodoItemActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent result = new Intent();
-                Calendar calendar = new GregorianCalendar(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
-                result.putExtra("edtNewItem", edtNewItem.getText().toString());
-                result.putExtra("datePicker",  String.valueOf(calendar.getTimeInMillis()));
+
+                if (datePicker == null) {
+                    result.putExtra("dueDate",  String.valueOf(0));
+                } else {
+                    Calendar calendar = new GregorianCalendar(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+                    result.putExtra("dueDate",  String.valueOf(calendar.getTimeInMillis()));
+                }
+
+                if (edtNewItem == null) {
+                    result.putExtra("title", "");
+                } else {
+                    result.putExtra("title", edtNewItem.getText().toString());
+                }
+
                 setResult(RESULT_OK, result);
                 finish();
             }

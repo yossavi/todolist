@@ -95,12 +95,12 @@ public class TodoListManagerActivity extends ActionBarActivity implements DbList
 
                 Button menuItemCall = (Button) bodyView.findViewById(R.id.menuItemCall);
                 String mydata = list.get((int) id).toDo;
-                Pattern pattern = Pattern.compile("call (.*)", Pattern.CASE_INSENSITIVE);
+                Pattern pattern = Pattern.compile("Call (.*)");
                 Matcher matcher = pattern.matcher(mydata);
 
                 if (matcher.find()) {
                     final String res = matcher.group(1);
-                    menuItemCall.setText("Call to: " + res);
+                    menuItemCall.setText(mydata);
                     menuItemCall.setOnClickListener(new Button.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -119,6 +119,8 @@ public class TodoListManagerActivity extends ActionBarActivity implements DbList
                 return true;
             }
         });
+        if (data != null && data.hasExtra("title") && data.hasExtra("dueDate")) {
+            list.add(new Row(data.getStringExtra("title"), Long.parseLong(data.getStringExtra("dueDate"))));
         listview.setAdapter(adapter);
     }
 }

@@ -33,7 +33,12 @@ public class ToDoListArrayAdapter extends ArrayAdapter<Row> {
         TextView txtTodoTitle = (TextView)convertView.findViewById(R.id.txtTodoTitle);
         TextView txtTodoDueDate = (TextView)convertView.findViewById(R.id.txtTodoDueDate);
         txtTodoTitle.setText(getItem(position).toDo);
-        txtTodoDueDate.setText(Clock.getHumanTime(getItem(position).date));
+        if (getItem(position).date==0) {
+            txtTodoDueDate.setText("No due date");
+        } else {
+            txtTodoDueDate.setText(Clock.getHumanTime(getItem(position).date));
+        }
+
 
         if(Clock.getCurrentTimeMili() > getItem(position).date) {
             txtTodoTitle.setTextColor(Color.RED);
