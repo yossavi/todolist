@@ -61,8 +61,8 @@ public class TodoListManagerActivity extends ActionBarActivity implements DbList
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data != null && data.hasExtra("edtNewItem") && data.hasExtra("datePicker")) {
-            Row newRow = new Row(data.getStringExtra("edtNewItem"), Long.parseLong(data.getStringExtra("datePicker")), 0);
+        if (data != null && data.hasExtra("title") && data.hasExtra("dueDate")) {
+            Row newRow = new Row(data.getStringExtra("title"), Long.parseLong(data.getStringExtra("dueDate")), 0);
             db.addRow(newRow);
             onDbOpened();
         }
@@ -119,8 +119,6 @@ public class TodoListManagerActivity extends ActionBarActivity implements DbList
                 return true;
             }
         });
-        if (data != null && data.hasExtra("title") && data.hasExtra("dueDate")) {
-            list.add(new Row(data.getStringExtra("title"), Long.parseLong(data.getStringExtra("dueDate"))));
         listview.setAdapter(adapter);
     }
 }

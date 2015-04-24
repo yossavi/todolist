@@ -14,18 +14,18 @@ public class Db extends SQLiteOpenHelper {
 
 
     public Db(Context context, DbListeners serviceListener) {
-        super(context, "toDoList", null, 1);
+        super(context, "todo_db", null, 1);
         this.serviceListener = serviceListener;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         this.db = db;
-        Vector<String> locationsColumns = new Vector<String>();
-        locationsColumns.add("`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL");
-        locationsColumns.add("`todo` VARCHAR(45)");
-        locationsColumns.add("`date` LONG");
-        createTable("todolist", locationsColumns);
+        Vector<String> todolistColumns = new Vector<String>();
+        todolistColumns.add("`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL");
+        todolistColumns.add("`title` TEXT");
+        todolistColumns.add("`due` LONG");
+        createTable("todolist", todolistColumns);
 
         serviceListener.onDbOpened();
     }
@@ -52,14 +52,14 @@ public class Db extends SQLiteOpenHelper {
     }
 	
 	public void addRow(Row row) {
-        db.execSQL("INSERT INTO todolist (todo, date) VALUES ('" + row.toDo + "', '" + row.date + "')");
+        db.execSQL("INSERT INTO todolist (title, due) VALUES ('" + row.toDo + "', '" + row.date + "')");
 	}
 	
 	public Row getRow(int id) {
         Row row = null;
         Cursor cursor = db.rawQuery("SELECT * FROM todolist WHERE `id` = '"+id+"'", null);
         if (cursor.moveToFirst()) {
-            row = new Row(cursor.getString(cursor.getColumnIndex("todo")), cursor.getLong(cursor.getColumnIndex("date")), id);
+            row = new Row(cursor.getString(cursor.getColumnIndex("title")), cursor.getLong(cursor.getColumnIndex("due")), id);
         }
 
 		return row;
@@ -70,7 +70,7 @@ public class Db extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * from todolist", null);
         if (cursor.moveToFirst()) {
             do {
-                rows.add(new Row(cursor.getString(cursor.getColumnIndex("todo")), cursor.getLong(cursor.getColumnIndex("date")), cursor.getInt(cursor.getColumnIndex("id"))));
+                rows.add(new Row(cursor.getString(cursor.getColumnIndex("title")), cursor.getLong(cursor.getColumnIndex("due")), cursor.getInt(cursor.getColumnIndex("_id"))));
             } while (cursor.moveToNext());
         }
 
@@ -78,7 +78,7 @@ public class Db extends SQLiteOpenHelper {
 	}
 	
 	public void removeRow(int id){
-        db.execSQL("DELETE FROM todolist WHERE `id`="+id);
+        db.execSQL("DELETE FROM todolist WHERE `_id`="+id);
 	}
 	
 	private void createTable(String name, Vector<String> columns) {
